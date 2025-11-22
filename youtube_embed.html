@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YouTube Video Player</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 30px;
+        text-align: center;
+        color: white;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        opacity: 0.9;
+        font-size: 0.95rem;
+      }
+
+      .video-wrapper {
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+        overflow: hidden;
+        background: #000;
+      }
+
+      .video-wrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+
+      .info-section {
+        padding: 30px;
+      }
+
+      .url-display {
+        background: #f7f7f7;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        word-break: break-all;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+        color: #555;
+      }
+
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .feature-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        background: #f0f4ff;
+        border-radius: 10px;
+        transition: transform 0.2s;
+      }
+
+      .feature-item:hover {
+        transform: translateY(-2px);
+      }
+
+      .feature-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        color: white;
+        font-size: 1.2rem;
+      }
+
+      .error-message {
+        background: #fee;
+        border-left: 4px solid #f44;
+        padding: 20px;
+        margin: 20px;
+        border-radius: 5px;
+        color: #c33;
+      }
+
+      .instructions {
+        background: #fff9e6;
+        border-left: 4px solid #ffc107;
+        padding: 20px;
+        margin: 20px;
+        border-radius: 5px;
+      }
+
+      .instructions h3 {
+        margin-bottom: 10px;
+        color: #f57c00;
+      }
+
+      .instructions code {
+        background: #fff;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: "Courier New", monospace;
+        color: #d63384;
+      }
+
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 1.5rem;
+        }
+
+        .features {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🎬 YouTube Video Player</h1>
+        <p>Tự động phát và bật phụ đề</p>
+      </div>
+
+      <div id="content"></div>
+    </div>
+
+    <script>
+      function getVideoIdFromUrl(url) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoUrl = urlParams.get("url");
+
+        if (!videoUrl) return null;
+
+        const patterns = [
+          /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/,
+          /youtube\.com\/embed\/([^&\s]+)/,
+          /youtube\.com\/v\/([^&\s]+)/,
+        ];
+
+        for (const pattern of patterns) {
+          const match = videoUrl.match(pattern);
+          if (match) return match[1];
+        }
+
+        return null;
+      }
+
+      function createPlayer(videoId) {
+        return `
+                <div class="video-wrapper">
+                    <iframe 
+                        src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&cc_load_policy=1&cc_lang_pref=vi&hl=vi"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+                <div class="info-section">
+                    <div class="url-display">
+                        <strong>Video URL:</strong><br>
+                        ${new URLSearchParams(window.location.search).get(
+                          "url"
+                        )}
+                    </div>
+                    <div class="features">
+                        <div class="feature-item">
+                            <div class="feature-icon">▶</div>
+                            <div>Tự động phát</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">📝</div>
+                            <div>Phụ đề tự động</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🌐</div>
+                            <div>Hỗ trợ đa ngôn ngữ</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🔇</div>
+                            <div>Tự động tắt tiếng</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">📱</div>
+                            <div>Responsive</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+      }
+
+      function showInstructions() {
+        return `
+                <div class="instructions">
+                    <h3>📖 Hướng dẫn sử dụng</h3>
+                    <p>Để xem video, thêm tham số <code>url</code> vào địa chỉ web:</p>
+                    <br>
+                    <p><strong>Ví dụ:</strong></p>
+                    <p><code>?url=https://www.youtube.com/watch?v=cUuFU1Od-xs</code></p>
+                    <br>
+                    <p><strong>Các định dạng URL được hỗ trợ:</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><code>https://www.youtube.com/watch?v=VIDEO_ID</code></li>
+                        <li><code>https://youtu.be/VIDEO_ID</code></li>
+                        <li><code>https://www.youtube.com/embed/VIDEO_ID</code></li>
+                    </ul>
+                </div>
+            `;
+      }
+
+      function showError(message) {
+        return `
+                <div class="error-message">
+                    <strong>❌ Lỗi:</strong> ${message}
+                </div>
+                ${showInstructions()}
+            `;
+      }
+
+      function init() {
+        const contentDiv = document.getElementById("content");
+        const videoId = getVideoIdFromUrl();
+
+        if (!videoId) {
+          const urlParam = new URLSearchParams(window.location.search).get(
+            "url"
+          );
+          if (urlParam) {
+            contentDiv.innerHTML = showError(
+              "Không thể trích xuất Video ID từ URL. Vui lòng kiểm tra lại URL YouTube."
+            );
+          } else {
+            contentDiv.innerHTML = showInstructions();
+          }
+        } else {
+          contentDiv.innerHTML = createPlayer(videoId);
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
